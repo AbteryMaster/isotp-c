@@ -16,13 +16,20 @@ void isotp_user_debug(const char* message){
 /* user implemented, send can message */
 uint8_t isotp_user_send_can(const uint32_t arbitration_id, const uint8_t * data, const uint8_t size)
 {
-	hw_can_pack_isotp_frame(data, size);
-
 	uint16_t frame_name = get_frame_name(arbitration_id, CANBUS1);
 
-	xQueueSend(event_id_queue_tx_can1, &frame_name, 0);
+	if (-1 != frame_name)
+	{
+		hw_can_pack_isotp_frame(frame_name, data, size);
 
-	return 0;
+		xQueueSend(event_id_queue_tx_can1, &frame_name, 0);
+
+		return 0;
+	}
+	else
+	{
+		return -1;
+	}
 }
 
 /* user implemented, get millisecond */
